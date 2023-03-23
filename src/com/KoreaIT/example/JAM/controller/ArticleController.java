@@ -1,27 +1,21 @@
 package com.KoreaIT.example.JAM.controller;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 import com.KoreaIT.example.JAM.Article;
-import com.KoreaIT.example.JAM.util.DBUtil;
-import com.KoreaIT.example.JAM.util.SecSql;
+import com.KoreaIT.example.JAM.service.ArticleService;
 import com.KoreaIT.example.JAM.util.util;
 
-public class ArticleController {
+public class ArticleController extends Controller {
 
-	private Connection conn;
-	private Scanner sc;
+	private ArticleService articleService;
 
-	public void setConn(Connection conn) {
-		this.conn = conn;
-	}
-
-	public void setScanner(Scanner sc) {
-		this.sc = sc;
+	public ArticleController(Connection conn, Scanner sc) {
+		super(sc);
+		articleService = new ArticleService(conn);
 	}
 
 	public void doWrite(String cmd) {
@@ -31,18 +25,10 @@ public class ArticleController {
 		System.out.printf("내용 : ");
 		String body = sc.nextLine();
 
-		SecSql sql = new SecSql();
-
-		sql.append("INSERT INTO article");
-		sql.append("SET regDate = NOW()");
-		sql.append(", updateDate = NOW()");
-		sql.append(", title = ?", title);
-		sql.append(", `body` = ?", body);
-
-		int id = DBUtil.insert(conn, sql);
+		int id = articleService.doWrite(title, body);
 
 		System.out.println(id + "번 글이 생성 되었습니다");
-		
+
 	}
 
 	public void showDetail(String cmd) {
@@ -50,12 +36,7 @@ public class ArticleController {
 
 		System.out.println("==게시물 상세보기==");
 
-		SecSql sql = new SecSql();
-		sql.append("SELECT *");
-		sql.append("FROM article");
-		sql.append("WHERE id = ?", id);
-
-		Map<String, Object> articleMap = DBUtil.selectRow(conn, sql);
+		Map<String, Object> articleMap = articleService.getArticleById(id);
 
 		if (articleMap.isEmpty()) {
 			System.out.println(id + "번 글은 존재하지 않습니다");
@@ -69,7 +50,7 @@ public class ArticleController {
 		System.out.println("수정날짜 : " + util.getNowDateTimeStr(article.updateDate));
 		System.out.println("제목 : " + article.title);
 		System.out.println("내용 : " + article.body);
-		
+
 	}
 
 	public void doDelete(String cmd) {
@@ -77,30 +58,28 @@ public class ArticleController {
 
 		System.out.println("==게시물 삭제==");
 
-		SecSql sql = new SecSql();
-		sql.append("SELECT COUNT(*)");
-		sql.append("FROM article");
-		sql.append("WHERE id = ?", id);
-
-		int articlesCount = DBUtil.selectRowIntValue(conn, sql);
+		int articlesCount = articleService.getArticlesCount(id);
 
 		if (articlesCount == 0) {
 			System.out.println(id + "번 글은 존재하지 않습니다");
 			return;
 		}
 
-		sql = new SecSql();
-		sql.append("DELETE FROM article");
-		sql.append("WHERE id = ?", id);
-
-		DBUtil.delete(conn, sql);
+		articleService.doDelete(id);
 
 		System.out.println(id + "번 글이 삭제 되었습니다");
-		
+
 	}
 
 	public void doModify(String cmd) {
 		int id = Integer.parseInt(cmd.split(" ")[2]);
+
+		int articlesCount = articleService.getArticlesCount(id);
+
+		if (articlesCount == 0) {
+			System.out.println(id + "번 글은 존재하지 않습니다");
+			return;
+		}
 
 		System.out.println("==게시물 수정==");
 		System.out.printf("새 제목 : ");
@@ -108,36 +87,16 @@ public class ArticleController {
 		System.out.printf("새 내용 : ");
 		String body = sc.nextLine();
 
-		SecSql sql = new SecSql();
-
-		sql.append("UPDATE article");
-		sql.append("SET updateDate = NOW()");
-		sql.append(", title = ?", title);
-		sql.append(", `body` = ?", body);
-		sql.append("WHERE id = ?", id);
-
-		DBUtil.update(conn, sql);
+		articleService.doModify(id, title, body);
 
 		System.out.println(id + "번 글이 수정 되었습니다");
-		
+
 	}
 
 	public void showList(String cmd) {
 		System.out.println("==게시물 목록==");
 
-		List<Article> articles = new ArrayList<>();
-
-		SecSql sql = new SecSql();
-
-		sql.append("SELECT *");
-		sql.append("FROM article");
-		sql.append("ORDER BY id DESC;");
-
-		List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
-
-		for (Map<String, Object> articleMap : articleListMap) {
-			articles.add(new Article(articleMap));
-		}
+		List<Article> articles = articleService.getArticlesCount();
 
 		if (articles.size() == 0) {
 			System.out.println("게시글이 없습니다");
@@ -149,7 +108,7 @@ public class ArticleController {
 		for (Article article : articles) {
 			System.out.printf("%4d   /   %s\n", article.id, article.title);
 		}
-		
+
 	}
 
 }
