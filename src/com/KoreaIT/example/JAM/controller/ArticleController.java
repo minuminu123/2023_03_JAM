@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import com.KoreaIT.example.JAM.Article;
 import com.KoreaIT.example.JAM.service.ArticleService;
 import com.KoreaIT.example.JAM.util.util;
+import com.KoreaIT.example.dto.Article;
 
 public class ArticleController extends Controller {
 

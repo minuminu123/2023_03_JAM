@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.KoreaIT.example.JAM.Article;
 import com.KoreaIT.example.JAM.util.DBUtil;
 import com.KoreaIT.example.JAM.util.SecSql;
+import com.KoreaIT.example.dto.Article;
 
 public class ArticleDao {
 	private Connection conn;
