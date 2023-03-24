@@ -1,8 +1,7 @@
-package com.KoreaIT.example.dto;
+package com.KoreaIT.example.JAM.dto;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Article extends Object {
 	public int id;
@@ -32,10 +31,6 @@ public class Article extends Object {
 		this.title = (String) articleMap.get("title");
 		this.body = (String) articleMap.get("body");
 
-	}
-
-	public Article(Object articleMap) {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
